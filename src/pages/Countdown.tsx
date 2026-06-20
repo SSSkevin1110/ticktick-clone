@@ -78,12 +78,12 @@ export default function Countdown() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-40 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="p-5 bg-gray-50 rounded-xl animate-pulse">
               <div className="flex items-center gap-2 mb-3">
@@ -100,14 +100,14 @@ export default function Countdown() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">倒计时</h1>
         <p className="text-sm text-gray-500 mt-1">记录重要时刻，把握每一天</p>
       </div>
 
-      <div className="px-6">
+      <div>
         {countdowns.length === 0 ? (
           /* 空状态 */
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">

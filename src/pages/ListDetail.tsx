@@ -58,8 +58,8 @@ export default function ListDetail() {
   // 加载状态
   if (tasksLoading || listsLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gray-200 rounded-lg animate-pulse" />
             <div className="space-y-2">
@@ -86,9 +86,9 @@ export default function ListDetail() {
   const pendingCount = listTasks.filter(t => !t.completed).length;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4 flex items-center gap-3">
+      <div className="pt-6 pb-4 flex items-center gap-3">
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
           style={{ backgroundColor: list.color + '20', color: list.color }}

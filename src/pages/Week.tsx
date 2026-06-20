@@ -82,12 +82,12 @@ export default function Week() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-48 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="space-y-4 px-6">
+        <div className="space-y-4">
           {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="h-6 w-24 bg-gray-200 rounded mb-2" />
@@ -100,9 +100,9 @@ export default function Week() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">最近7天</h1>
         <p className="text-sm text-gray-500 mt-1">查看和管理本周任务</p>
       </div>

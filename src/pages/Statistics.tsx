@@ -56,7 +56,7 @@ export default function Statistics() {
   );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">统计报表</h1>

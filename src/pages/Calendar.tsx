@@ -122,9 +122,9 @@ export default function Calendar() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-2">
+      <div className="pt-6 pb-2">
         <div className="flex items-center gap-2 mb-4">
           <CalendarIcon className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
           <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>日历</h1>
@@ -198,7 +198,7 @@ export default function Calendar() {
       </div>
 
       {/* 视图内容 */}
-      <div className="px-6 mt-4">
+      <div className="mt-4">
         {viewType === 'month' && (
           <div>
             {/* 星期标题行 */}

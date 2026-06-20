@@ -99,12 +99,12 @@ export default function AllTasks() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-48 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="space-y-3 px-6">
+        <div className="space-y-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg animate-pulse">
               <div className="w-5 h-5 rounded-full border-2 border-gray-200" />
@@ -120,9 +120,9 @@ export default function AllTasks() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">全部任务</h1>
         <p className="text-sm text-gray-500 mt-1">
           {pendingTasks.length} 个待完成，{completedTasks.length} 个已完成
@@ -134,7 +134,7 @@ export default function AllTasks() {
 
       {/* 排序和过滤工具栏 */}
       {tasks.length > 0 && (
-        <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
+        <div className="pb-3 flex items-center gap-3 flex-wrap">
           <FilterBar currentFilter={quickFilter} onFilterChange={setQuickFilter} />
 
           {/* 排序按钮 */}

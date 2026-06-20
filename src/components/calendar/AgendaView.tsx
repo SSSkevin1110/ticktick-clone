@@ -123,7 +123,7 @@ export default function AgendaView({ tasks, onTaskClick }: AgendaViewProps) {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4">
+    <div className="w-full">
       {/* 标题 */}
       <div className="mb-4">
         <h2 className="text-lg font-semibold text-gray-900">议程</h2>

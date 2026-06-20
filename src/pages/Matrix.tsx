@@ -39,12 +39,12 @@ export default function Matrix() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-48 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="p-4 bg-gray-50 rounded-xl animate-pulse min-h-[200px]">
               <div className="h-4 bg-gray-200 rounded w-1/3 mb-3" />
@@ -60,15 +60,15 @@ export default function Matrix() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">艾森豪威尔矩阵</h1>
         <p className="text-sm text-gray-500 mt-1">按紧急和重要程度分类任务，高效管理时间</p>
       </div>
 
       {/* 矩阵视图 */}
-      <div className="px-6 pb-6">
+      <div className="pb-6">
         {tasks.filter((t) => !t.completed).length === 0 ? (
           /* 空状态 */
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">

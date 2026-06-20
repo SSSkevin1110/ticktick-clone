@@ -57,12 +57,12 @@ export default function Today() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-40 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="space-y-3 px-6">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg animate-pulse">
               <div className="w-5 h-5 rounded-full border-2 border-gray-200" />
@@ -78,9 +78,9 @@ export default function Today() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">今天</h1>
         <p className="text-sm text-gray-500 mt-1">{dateStr}</p>
       </div>

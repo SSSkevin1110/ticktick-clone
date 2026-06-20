@@ -56,7 +56,7 @@ export default function Pomodoro() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">番茄钟</h1>

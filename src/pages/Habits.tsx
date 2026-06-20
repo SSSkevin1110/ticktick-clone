@@ -107,12 +107,12 @@ export default function Habits() {
   // 加载骨架屏
   if (isLoading) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="px-6 pt-6 pb-4">
+      <div className="w-full px-6 py-6">
+        <div className="pt-6 pb-4">
           <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
           <div className="h-4 w-40 bg-gray-100 rounded mt-2 animate-pulse" />
         </div>
-        <div className="space-y-3 px-6">
+        <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="p-4 bg-gray-50 rounded-xl animate-pulse">
               <div className="flex items-center gap-3">
@@ -131,15 +131,15 @@ export default function Habits() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="w-full px-6 py-6">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
+      <div className="pt-6 pb-4">
         <h1 className="text-2xl font-semibold text-gray-900">习惯追踪</h1>
         <p className="text-sm text-gray-500 mt-1">坚持打卡，养成好习惯</p>
       </div>
 
       {/* 今日习惯列表 */}
-      <div className="px-6 space-y-3">
+      <div className="space-y-3">
         {habits.length === 0 ? (
           /* 空状态 */
           <div className="flex flex-col items-center justify-center py-16 text-gray-400">
@@ -190,7 +190,7 @@ export default function Habits() {
 
       {/* 统计区域 */}
       {selectedHabit && selectedHabitLogs.length > 0 && (
-        <div className="px-6 mt-6 pb-6">
+        <div className="mt-6 pb-6">
           <div className="text-sm font-medium text-gray-700 mb-3">
             {selectedHabit.icon} {selectedHabit.name} 统计
           </div>

@@ -45,7 +45,7 @@ export default function MonthView({
           return (
             <div
               key={index}
-              className={`min-h-[100px] p-2 border-b border-r border-gray-200 cursor-pointer transition-colors ${
+              className={`min-h-[120px] p-3 border-b border-r border-gray-200 cursor-pointer transition-colors ${
                 item.isCurrentMonth
                   ? 'bg-white hover:bg-gray-50'
                   : 'bg-gray-50'
