@@ -60,6 +60,43 @@ interface TagRow {
   created_at: string;
 }
 
+interface PomodoroSessionRow {
+  id: string;
+  task_id?: string;
+  duration_minutes: number;
+  break_minutes: number;
+  started_at: string;
+  completed_at?: string;
+  is_completed: boolean;
+  notes?: string;
+  user_id: string;
+}
+
+interface HabitRow {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+  frequency: string;
+  frequency_config?: any;
+  reminder_time?: string;
+  sort_order: number;
+  is_archived: boolean;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface HabitLogRow {
+  id: string;
+  habit_id: string;
+  log_date: string;
+  completed: boolean;
+  notes?: string;
+  user_id: string;
+  created_at: string;
+}
+
 // ===== 认证相关 =====
 export const auth = {
   // 邮箱注册
@@ -151,6 +188,40 @@ const toTag = (row: TagRow) => ({
   id: row.id,
   name: row.name,
   color: row.color,
+});
+
+const toPomodoroSession = (row: PomodoroSessionRow) => ({
+  id: row.id,
+  taskId: row.task_id,
+  durationMinutes: row.duration_minutes,
+  breakMinutes: row.break_minutes,
+  startedAt: row.started_at,
+  completedAt: row.completed_at,
+  isCompleted: row.is_completed,
+  notes: row.notes,
+});
+
+const toHabit = (row: HabitRow) => ({
+  id: row.id,
+  name: row.name,
+  icon: row.icon,
+  color: row.color,
+  frequency: row.frequency as 'daily' | 'weekly' | 'custom',
+  frequencyConfig: row.frequency_config,
+  reminderTime: row.reminder_time,
+  sortOrder: row.sort_order,
+  isArchived: row.is_archived,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
+});
+
+const toHabitLog = (row: HabitLogRow) => ({
+  id: row.id,
+  habitId: row.habit_id,
+  logDate: row.log_date,
+  completed: row.completed,
+  notes: row.notes,
+  createdAt: row.created_at,
 });
 
 // 任务操作
@@ -308,6 +379,155 @@ export const db = {
         .delete()
         .eq('id', id);
       return { error };
+    },
+  },
+
+  // 番茄钟操作
+  pomodoro: {
+    // 获取所有记录
+    getAll: async (userId: string) => {
+      const { data, error } = await supabase
+        .from('pomodoro_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .order('started_at', { ascending: false });
+      if (error) return { data: null, error };
+      return { data: data?.map(toPomodoroSession) ?? [], error: null };
+    },
+
+    // 创建记录
+    create: async (session: Omit<PomodoroSessionRow, 'id'>) => {
+      const { data, error } = await supabase
+        .from('pomodoro_sessions')
+        .insert(session)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toPomodoroSession(data as PomodoroSessionRow), error: null };
+    },
+
+    // 更新记录
+    update: async (id: string, updates: Partial<PomodoroSessionRow>) => {
+      const { data, error } = await supabase
+        .from('pomodoro_sessions')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toPomodoroSession(data as PomodoroSessionRow), error: null };
+    },
+  },
+
+  // 习惯操作
+  habits: {
+    // 获取所有习惯
+    getAll: async (userId: string) => {
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_archived', false)
+        .order('sort_order', { ascending: true });
+      if (error) return { data: null, error };
+      return { data: data?.map(toHabit) ?? [], error: null };
+    },
+
+    // 创建习惯
+    create: async (habit: Omit<HabitRow, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('habits')
+        .insert(habit)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toHabit(data as HabitRow), error: null };
+    },
+
+    // 更新习惯
+    update: async (id: string, updates: Partial<HabitRow>) => {
+      const { data, error } = await supabase
+        .from('habits')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toHabit(data as HabitRow), error: null };
+    },
+
+    // 删除习惯
+    delete: async (id: string) => {
+      const { error } = await supabase
+        .from('habits')
+        .delete()
+        .eq('id', id);
+      return { error };
+    },
+  },
+
+  // 习惯打卡记录操作
+  habitLogs: {
+    // 获取打卡记录
+    getAll: async (habitId: string, startDate: string, endDate: string) => {
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .select('*')
+        .eq('habit_id', habitId)
+        .gte('log_date', startDate)
+        .lte('log_date', endDate)
+        .order('log_date', { ascending: true });
+      if (error) return { data: null, error };
+      return { data: data?.map(toHabitLog) ?? [], error: null };
+    },
+
+    // 打卡/取消打卡
+    toggle: async (habitId: string, date: string, userId: string) => {
+      // 先检查是否已有记录
+      const { data: existing } = await supabase
+        .from('habit_logs')
+        .select('*')
+        .eq('habit_id', habitId)
+        .eq('log_date', date)
+        .single();
+
+      if (existing) {
+        // 如果已有记录，切换完成状态
+        const newCompleted = !existing.completed;
+        if (newCompleted) {
+          // 重新打卡，更新记录
+          const { data, error } = await supabase
+            .from('habit_logs')
+            .update({ completed: true })
+            .eq('id', existing.id)
+            .select()
+            .single();
+          if (error) return { data: null, error };
+          return { data: toHabitLog(data as HabitLogRow), error: null };
+        } else {
+          // 取消打卡，删除记录
+          const { error } = await supabase
+            .from('habit_logs')
+            .delete()
+            .eq('id', existing.id);
+          if (error) return { data: null, error };
+          return { data: { ...existing, completed: false } as any, error: null };
+        }
+      } else {
+        // 没有记录，创建新记录
+        const { data, error } = await supabase
+          .from('habit_logs')
+          .insert({
+            habit_id: habitId,
+            log_date: date,
+            completed: true,
+            user_id: userId,
+          })
+          .select()
+          .single();
+        if (error) return { data: null, error };
+        return { data: toHabitLog(data as HabitLogRow), error: null };
+      }
     },
   },
 };

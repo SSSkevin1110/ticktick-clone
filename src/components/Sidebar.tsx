@@ -14,6 +14,9 @@ import {
   Pencil,
   Trash2,
   Palette,
+  Timer,
+  BarChart3,
+  CheckCircle,
 } from 'lucide-react';
 import { useUIStore } from '../stores/uiStore';
 import { useListStore } from '../stores/listStore';
@@ -30,6 +33,15 @@ const menuItems = [
   { path: '/', label: '全部任务', icon: LayoutGrid },
   { path: '/today', label: '今天', icon: CalendarDays },
   { path: '/week', label: '最近7天', icon: Calendar },
+];
+
+/**
+ * 智能视图菜单项
+ */
+const smartItems = [
+  { path: '/pomodoro', label: '番茄钟', icon: Timer },
+  { path: '/habits', label: '习惯', icon: CheckCircle },
+  { path: '/statistics', label: '统计', icon: BarChart3 },
 ];
 
 /**
@@ -213,6 +225,34 @@ export default function Sidebar() {
                   </Link>
                 );
               })}
+            </div>
+
+            {/* 智能视图 */}
+            <div className="mt-4">
+              <div className="px-3 mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  智能视图
+                </span>
+              </div>
+              <div className="space-y-0.5">
+                {smartItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? 'bg-indigo-50 text-indigo-700 font-medium'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <item.icon size={18} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
 
             {/* 清单列表 */}

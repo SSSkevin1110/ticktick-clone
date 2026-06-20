@@ -7,6 +7,9 @@ import Today from './pages/Today';
 import Week from './pages/Week';
 import Calendar from './pages/Calendar';
 import ListDetail from './pages/ListDetail';
+import Pomodoro from './pages/Pomodoro';
+import Statistics from './pages/Statistics';
+import Habits from './pages/Habits';
 import { useAuthStore } from './stores/authStore';
 
 /**
@@ -65,7 +68,10 @@ function App() {
           <Route path="today" element={<Today />} />
           <Route path="week" element={<Week />} />
           <Route path="calendar" element={<Calendar />} />
+          <Route path="pomodoro" element={<Pomodoro />} />
           <Route path="list/:listId" element={<ListDetail />} />
+          <Route path="statistics" element={<Statistics />} />
+          <Route path="habits" element={<Habits />} />
         </Route>
 
         {/* 未匹配路由重定向到首页 */}
