@@ -17,6 +17,7 @@ import {
   Timer,
   BarChart3,
   CheckCircle,
+  Clock,
 } from 'lucide-react';
 import { useUIStore } from '../stores/uiStore';
 import { useListStore } from '../stores/listStore';
@@ -41,6 +42,8 @@ const menuItems = [
 const smartItems = [
   { path: '/pomodoro', label: '番茄钟', icon: Timer },
   { path: '/habits', label: '习惯', icon: CheckCircle },
+  { path: '/countdown', label: '倒计时', icon: Clock },
+  { path: '/matrix', label: '矩阵', icon: LayoutGrid },
   { path: '/statistics', label: '统计', icon: BarChart3 },
 ];
 
@@ -379,10 +382,13 @@ export default function Sidebar() {
 
           {/* 底部设置 */}
           <div className="p-3 border-t border-gray-200">
-            <button className="flex items-center gap-3 px-3 py-2 w-full text-left text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <Link
+              to="/settings"
+              className="flex items-center gap-3 px-3 py-2 w-full text-left text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            >
               <Settings size={18} />
               <span>设置</span>
-            </button>
+            </Link>
           </div>
         </div>
       </aside>

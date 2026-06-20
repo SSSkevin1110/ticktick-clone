@@ -97,6 +97,19 @@ interface HabitLogRow {
   created_at: string;
 }
 
+interface CountdownRow {
+  id: string;
+  title: string;
+  target_date: string;
+  icon: string;
+  color: string;
+  is_pinned: boolean;
+  sort_order: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // ===== 认证相关 =====
 export const auth = {
   // 邮箱注册
@@ -222,6 +235,18 @@ const toHabitLog = (row: HabitLogRow) => ({
   completed: row.completed,
   notes: row.notes,
   createdAt: row.created_at,
+});
+
+const toCountdown = (row: CountdownRow) => ({
+  id: row.id,
+  title: row.title,
+  targetDate: row.target_date,
+  icon: row.icon,
+  color: row.color,
+  isPinned: row.is_pinned,
+  sortOrder: row.sort_order,
+  createdAt: row.created_at,
+  updatedAt: row.updated_at,
 });
 
 // 任务操作
@@ -528,6 +553,52 @@ export const db = {
         if (error) return { data: null, error };
         return { data: toHabitLog(data as HabitLogRow), error: null };
       }
+    },
+  },
+
+  // 倒计时操作
+  countdowns: {
+    // 获取所有倒计时
+    getAll: async (userId: string) => {
+      const { data, error } = await supabase
+        .from('countdowns')
+        .select('*')
+        .eq('user_id', userId)
+        .order('sort_order', { ascending: true });
+      if (error) return { data: null, error };
+      return { data: data?.map(toCountdown) ?? [], error: null };
+    },
+
+    // 创建倒计时
+    create: async (countdown: Omit<CountdownRow, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data, error } = await supabase
+        .from('countdowns')
+        .insert(countdown)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toCountdown(data as CountdownRow), error: null };
+    },
+
+    // 更新倒计时
+    update: async (id: string, updates: Partial<CountdownRow>) => {
+      const { data, error } = await supabase
+        .from('countdowns')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toCountdown(data as CountdownRow), error: null };
+    },
+
+    // 删除倒计时
+    delete: async (id: string) => {
+      const { error } = await supabase
+        .from('countdowns')
+        .delete()
+        .eq('id', id);
+      return { error };
     },
   },
 };

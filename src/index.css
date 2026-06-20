@@ -1,10 +1,30 @@
 @import "tailwindcss";
+@import "./styles/themes.css";
 
 /* 自定义样式 */
 :root {
   --primary: #4F46E5; /* 主题色 */
   --primary-hover: #4338CA;
   --sidebar-width: 260px;
+}
+
+/* 将 CSS 变量映射到 Tailwind */
+@theme {
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-tertiary: var(--color-bg-tertiary);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-border: var(--color-border);
+  --color-hover: var(--color-hover);
+  --color-active: var(--color-active);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-light: var(--color-primary-light);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
 }
 
 body {

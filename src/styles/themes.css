@@ -1,0 +1,59 @@
+/**
+ * 主题变量定义
+ * 亮色和暗色模式的 CSS 自定义属性
+ */
+
+:root,
+[data-theme='light'] {
+  /* 背景色 */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+
+  /* 文字色 */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+
+  /* 边框和交互 */
+  --color-border: #e5e7eb;
+  --color-hover: #f3f4f6;
+  --color-active: #eef2ff;
+
+  /* 主色 */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-light: #eef2ff;
+
+  /* 状态色 */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+[data-theme='dark'] {
+  /* 背景色 */
+  --color-bg-primary: #1f2937;
+  --color-bg-secondary: #111827;
+  --color-bg-tertiary: #374151;
+
+  /* 文字色 */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-tertiary: #9ca3af;
+
+  /* 边框和交互 */
+  --color-border: #4b5563;
+  --color-hover: #374151;
+  --color-active: #1e1b4b;
+
+  /* 主色 */
+  --color-primary: #818cf8;
+  --color-primary-hover: #6366f1;
+  --color-primary-light: #1e1b4b;
+
+  /* 状态色 */
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+}

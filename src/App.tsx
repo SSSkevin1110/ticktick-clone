@@ -10,6 +10,9 @@ import ListDetail from './pages/ListDetail';
 import Pomodoro from './pages/Pomodoro';
 import Statistics from './pages/Statistics';
 import Habits from './pages/Habits';
+import Countdown from './pages/Countdown';
+import Matrix from './pages/Matrix';
+import Settings from './pages/Settings';
 import { useAuthStore } from './stores/authStore';
 
 /**
@@ -72,6 +75,9 @@ function App() {
           <Route path="list/:listId" element={<ListDetail />} />
           <Route path="statistics" element={<Statistics />} />
           <Route path="habits" element={<Habits />} />
+          <Route path="countdown" element={<Countdown />} />
+          <Route path="matrix" element={<Matrix />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
 
         {/* 未匹配路由重定向到首页 */}
