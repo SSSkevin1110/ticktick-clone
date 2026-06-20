@@ -23,7 +23,7 @@ export default function Week() {
       priority: newTask.priority,
       dueDate: newTask.dueDate,
       repeatRule: 'none',
-      listId: 'default',
+      listId: '',
       tags: [],
     }, user.id);
   };

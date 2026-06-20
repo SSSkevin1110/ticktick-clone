@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import DatePicker from './DatePicker';
 import type { Priority } from '../types';
 
 interface AddTaskProps {
@@ -8,7 +9,7 @@ interface AddTaskProps {
 export default function AddTask({ onAdd }: AddTaskProps) {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<Priority>('none');
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState<string | undefined>(undefined);
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -17,11 +18,11 @@ export default function AddTask({ onAdd }: AddTaskProps) {
       onAdd({
         title: title.trim(),
         priority,
-        dueDate: dueDate || undefined,
+        dueDate,
       });
       setTitle('');
       setPriority('none');
-      setDueDate('');
+      setDueDate(undefined);
       setIsExpanded(false);
     }
   };
@@ -65,7 +66,7 @@ export default function AddTask({ onAdd }: AddTaskProps) {
 
         {/* 展开的选项 */}
         {isExpanded && (
-          <div className="mt-3 flex items-center gap-3 pl-8">
+          <div className="mt-3 flex items-center gap-4 pl-8">
             {/* 优先级选择 */}
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-500 mr-1">优先级:</span>
@@ -102,11 +103,10 @@ export default function AddTask({ onAdd }: AddTaskProps) {
             {/* 日期选择 */}
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-500 mr-1">日期:</span>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              <DatePicker
+                value={dueDate || ''}
+                onChange={setDueDate}
+                placeholder="选择日期"
               />
             </div>
           </div>

@@ -29,7 +29,7 @@ export default function Today() {
       priority: newTask.priority,
       dueDate: newTask.dueDate || today,
       repeatRule: 'none',
-      listId: 'default',
+      listId: '',
       tags: [],
     }, user.id);
   };
