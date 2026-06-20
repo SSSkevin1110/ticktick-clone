@@ -14,18 +14,12 @@ import { useListStore } from '../stores/listStore';
  * 应用主布局
  * - 响应式支持：移动端隐藏侧边栏，平板可折叠，桌面固定
  * - 集成 QuickAdd、Toast、BottomNav、TaskDetail
- * - 初始化认证和数据
  */
 export default function Layout() {
   const { setSidebarOpen } = useUIStore();
-  const { initialize: initAuth, user } = useAuthStore();
+  const { user } = useAuthStore();
   const { fetchTasks } = useTaskStore();
   const { fetchLists } = useListStore();
-
-  // 初始化认证状态
-  useEffect(() => {
-    initAuth();
-  }, [initAuth]);
 
   // 用户登录后加载数据
   useEffect(() => {

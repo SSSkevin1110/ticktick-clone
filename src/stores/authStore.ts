@@ -25,9 +25,17 @@ export const useAuthStore = create<AuthState>((set) => ({
   signUp: async (email: string, password: string) => {
     const { data, error } = await auth.signUp(email, password);
     if (error) {
-      return { error: error.message };
+      // 提供更友好的错误信息
+      let msg = error.message;
+      if (error.message.includes('already registered')) {
+        msg = '该邮箱已注册，请直接登录';
+      } else if (error.message.includes('valid email')) {
+        msg = '请输入有效的邮箱地址';
+      } else if (error.message.includes('password')) {
+        msg = '密码至少需要6个字符';
+      }
+      return { error: msg };
     }
-    // 注册成功后 Supabase 可能自动登录，也可能需要邮件确认
     if (data.user) {
       set({
         user: {
@@ -37,6 +45,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           avatarUrl: data.user.user_metadata?.avatar_url,
         },
         isAuthenticated: true,
+        isLoading: false,
       });
     }
     return {};
@@ -46,7 +55,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   signIn: async (email: string, password: string) => {
     const { data, error } = await auth.signIn(email, password);
     if (error) {
-      return { error: error.message };
+      // 提供更友好的错误信息
+      let msg = error.message;
+      if (error.message.includes('Invalid login credentials')) {
+        msg = '邮箱或密码错误，请重试';
+      } else if (error.message.includes('Email not confirmed')) {
+        msg = '邮箱未验证，请先验证邮箱';
+      }
+      return { error: msg };
     }
     if (data.user) {
       set({
@@ -57,6 +73,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           avatarUrl: data.user.user_metadata?.avatar_url,
         },
         isAuthenticated: true,
+        isLoading: false,
       });
     }
     return {};
@@ -68,10 +85,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
-  // 初始化：监听 Supabase auth 状态变化
-  initialize: () => {
-    // 先检查当前是否有活跃会话
-    auth.getUser().then((supabaseUser) => {
+  // 初始化：检查当前会话 + 监听状态变化
+  initialize: async () => {
+    // 超时保护：3秒后无论如何结束加载状态
+    const timeout = setTimeout(() => {
+      console.warn('[Auth] 初始化超时，跳过加载状态');
+      set({ isLoading: false });
+    }, 3000);
+
+    try {
+      // 检查当前是否有活跃会话
+      const supabaseUser = await auth.getUser();
+      clearTimeout(timeout);
+
       if (supabaseUser) {
         set({
           user: {
@@ -86,24 +112,32 @@ export const useAuthStore = create<AuthState>((set) => ({
       } else {
         set({ isLoading: false });
       }
-    });
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error('[Auth] 初始化失败:', err);
+      set({ isLoading: false });
+    }
 
     // 监听后续的认证状态变化
-    auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        set({
-          user: {
-            id: session.user.id,
-            email: session.user.email || '',
-            displayName: session.user.user_metadata?.display_name || session.user.email || '',
-            avatarUrl: session.user.user_metadata?.avatar_url,
-          },
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        set({ user: null, isAuthenticated: false, isLoading: false });
-      }
-    });
+    try {
+      auth.onAuthStateChange((_event, session) => {
+        if (session?.user) {
+          set({
+            user: {
+              id: session.user.id,
+              email: session.user.email || '',
+              displayName: session.user.user_metadata?.display_name || session.user.email || '',
+              avatarUrl: session.user.user_metadata?.avatar_url,
+            },
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } else {
+          set({ user: null, isAuthenticated: false, isLoading: false });
+        }
+      });
+    } catch (err) {
+      console.error('[Auth] 监听状态变化失败:', err);
+    }
   },
 }));

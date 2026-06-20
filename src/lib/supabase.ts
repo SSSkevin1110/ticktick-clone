@@ -56,13 +56,25 @@ interface FolderRow {
 export const auth = {
   // 邮箱注册
   signUp: async (email: string, password: string) => {
+    console.log('[Auth] 尝试注册:', email);
     const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      console.error('[Auth] 注册失败:', error.message, error.status);
+    } else {
+      console.log('[Auth] 注册成功:', data.user?.id);
+    }
     return { data, error };
   },
 
   // 邮箱登录
   signIn: async (email: string, password: string) => {
+    console.log('[Auth] 尝试登录:', email);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error('[Auth] 登录失败:', error.message, error.status);
+    } else {
+      console.log('[Auth] 登录成功:', data.user?.id);
+    }
     return { data, error };
   },
 
@@ -74,8 +86,13 @@ export const auth = {
 
   // 获取当前用户
   getUser: async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    } catch (err) {
+      console.error('[Supabase] getUser 失败:', err);
+      return null;
+    }
   },
 
   // 监听认证状态变化

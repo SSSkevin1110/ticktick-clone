@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Auth from './pages/Auth';
@@ -13,7 +14,12 @@ import { useAuthStore } from './stores/authStore';
  * 未登录时重定向到登录页
  */
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuthStore();
+  const { isAuthenticated, isLoading, initialize } = useAuthStore();
+
+  // 在此处初始化认证状态（而不是在 Layout 中）
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   // 加载中显示加载状态
   if (isLoading) {
@@ -21,7 +27,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">加载中...</p>
+          <p className="text-sm text-gray-500">正在连接...</p>
         </div>
       </div>
     );
