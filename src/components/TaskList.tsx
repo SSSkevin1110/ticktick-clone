@@ -5,9 +5,10 @@ interface TaskListProps {
   tasks: Task[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onClick?: (id: string) => void;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
+export default function TaskList({ tasks, onToggle, onDelete, onClick }: TaskListProps) {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
 
   const getPriorityColor = (priority: string) => {
@@ -47,7 +48,8 @@ export default function TaskList({ tasks, onToggle, onDelete }: TaskListProps) {
       {tasks.map((task) => (
         <div
           key={task.id}
-          className="group flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+          className="group flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+          onClick={() => onClick?.(task.id)}
         >
           {/* 复选框 */}
           <button

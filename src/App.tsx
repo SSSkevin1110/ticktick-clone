@@ -1,22 +1,69 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
+import Auth from './pages/Auth';
 import AllTasks from './pages/AllTasks';
 import Today from './pages/Today';
 import Week from './pages/Week';
 import Calendar from './pages/Calendar';
 import ListDetail from './pages/ListDetail';
+import { useAuthStore } from './stores/authStore';
 
+/**
+ * 受保护的路由包装器
+ * 未登录时重定向到登录页
+ */
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuthStore();
+
+  // 加载中显示加载状态
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-gray-500">加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 未登录重定向到登录页
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+/**
+ * 应用根组件
+ * 配置路由，处理认证状态
+ */
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        {/* 登录/注册页 - 未登录可访问 */}
+        <Route path="/auth" element={<Auth />} />
+
+        {/* 主应用 - 需要登录 */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AllTasks />} />
           <Route path="today" element={<Today />} />
           <Route path="week" element={<Week />} />
           <Route path="calendar" element={<Calendar />} />
           <Route path="list/:listId" element={<ListDetail />} />
         </Route>
+
+        {/* 未匹配路由重定向到首页 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
   );
