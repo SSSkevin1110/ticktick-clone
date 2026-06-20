@@ -34,6 +34,7 @@ const menuItems = [
   { path: '/', label: '全部任务', icon: LayoutGrid },
   { path: '/today', label: '今天', icon: CalendarDays },
   { path: '/week', label: '最近7天', icon: Calendar },
+  { path: '/calendar', label: '日历', icon: Calendar },
 ];
 
 /**
