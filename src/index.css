@@ -3,12 +3,11 @@
 
 /* 自定义样式 */
 :root {
-  --primary: #4F46E5; /* 主题色 */
+  --primary: #4F46E5;
   --primary-hover: #4338CA;
   --sidebar-width: 260px;
 }
 
-/* 将 CSS 变量映射到 Tailwind */
 @theme {
   --color-bg-primary: var(--color-bg-primary);
   --color-bg-secondary: var(--color-bg-secondary);
@@ -34,7 +33,123 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* 滚动条样式 */
+/* ========== 暗色模式全局覆盖 ========== */
+[data-theme="dark"] {
+  /* 背景色覆盖 */
+  background-color: var(--color-bg-primary) !important;
+  color: var(--color-text-primary) !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: var(--color-bg-primary) !important;
+}
+
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100 {
+  background-color: var(--color-bg-secondary) !important;
+}
+
+[data-theme="dark"] .bg-gray-200 {
+  background-color: var(--color-bg-tertiary) !important;
+}
+
+/* 文字颜色覆盖 */
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800 {
+  color: var(--color-text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-600 {
+  color: var(--color-text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-400 {
+  color: var(--color-text-tertiary) !important;
+}
+
+/* 边框颜色覆盖 */
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-100 {
+  border-color: var(--color-border) !important;
+}
+
+/* 表单元素暗色适配 */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+  background-color: var(--color-bg-tertiary) !important;
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--color-text-tertiary) !important;
+}
+
+/* Hover 状态暗色适配 */
+[data-theme="dark"] .hover\:bg-gray-50:hover,
+[data-theme="dark"] .hover\:bg-gray-100:hover {
+  background-color: var(--color-hover) !important;
+}
+
+[data-theme="dark"] .hover\:text-gray-600:hover,
+[data-theme="dark"] .hover\:text-gray-700:hover {
+  color: var(--color-text-secondary) !important;
+}
+
+/* 阴影暗色适配 */
+[data-theme="dark"] .shadow-sm {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .shadow-md {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .shadow-lg,
+[data-theme="dark"] .shadow-xl {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 滚动条暗色适配 */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* ========== 鼠标光标 ========== */
+button:not([disabled]),
+a,
+[role="button"],
+input[type="checkbox"],
+input[type="radio"],
+label[for] {
+  cursor: pointer;
+}
+
+/* 禁用按钮的光标 */
+button[disabled],
+.disabled {
+  cursor: not-allowed !important;
+}
+
+/* ========== 过渡动画 ========== */
+* {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+/* 排除某些不需要过渡的元素 */
+.no-transition {
+  transition: none !important;
+}
+
+/* ========== 滚动条样式 ========== */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -52,7 +167,7 @@ body {
   background: #9CA3AF;
 }
 
-/* 自定义动画 */
+/* ========== 自定义动画 ========== */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -71,4 +186,15 @@ body {
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+/* ========== 番茄钟按钮修复 ========== */
+.pomodoro-start-btn {
+  background-color: #4F46E5 !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.pomodoro-start-btn:hover {
+  background-color: #4338CA !important;
 }

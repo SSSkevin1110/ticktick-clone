@@ -126,23 +126,27 @@ export default function Calendar() {
       {/* 页面标题 */}
       <div className="px-6 pt-6 pb-2">
         <div className="flex items-center gap-2 mb-4">
-          <CalendarIcon className="w-6 h-6 text-indigo-500" />
-          <h1 className="text-2xl font-semibold text-gray-900">日历</h1>
+          <CalendarIcon className="w-6 h-6" style={{ color: 'var(--color-primary)' }} />
+          <h1 className="text-2xl font-semibold" style={{ color: 'var(--color-text-primary)' }}>日历</h1>
         </div>
 
         {/* 视图切换 + 导航栏 */}
         <div className="flex items-center justify-between">
           {/* 左侧：视图切换按钮 */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 rounded-lg p-1" style={{ backgroundColor: 'var(--color-bg-tertiary)' }}>
             {viewButtons.map((btn) => (
               <button
                 key={btn.key}
                 onClick={() => setViewType(btn.key)}
                 className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                   viewType === btn.key
-                    ? 'bg-white text-indigo-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'shadow-sm'
+                    : ''
                 }`}
+                style={{
+                  backgroundColor: viewType === btn.key ? 'var(--color-bg-primary)' : 'transparent',
+                  color: viewType === btn.key ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                }}
               >
                 {btn.label}
               </button>
@@ -154,7 +158,8 @@ export default function Calendar() {
             {/* 今天按钮 */}
             <button
               onClick={goToToday}
-              className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors font-medium"
+              className="px-3 py-1.5 text-sm rounded-lg transition-colors font-medium"
+              style={{ color: 'var(--color-primary)' }}
             >
               今天
             </button>
@@ -164,25 +169,27 @@ export default function Calendar() {
               <div className="flex items-center">
                 <button
                   onClick={handlePrev}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ color: 'var(--color-text-secondary)' }}
                 >
-                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-                <span className="text-sm font-semibold text-gray-900 min-w-[140px] text-center">
+                <span className="text-sm font-semibold min-w-[140px] text-center" style={{ color: 'var(--color-text-primary)' }}>
                   {getViewTitle()}
                 </span>
                 <button
                   onClick={handleNext}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 rounded-lg transition-colors"
+                  style={{ color: 'var(--color-text-secondary)' }}
                 >
-                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                  <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
             )}
 
             {/* 议程视图时显示标题 */}
             {viewType === 'agenda' && (
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 {getViewTitle()}
               </span>
             )}
@@ -199,7 +206,8 @@ export default function Calendar() {
               {['一', '二', '三', '四', '五', '六', '日'].map((day) => (
                 <div
                   key={day}
-                  className="text-center text-xs font-medium text-gray-500 py-2"
+                  className="text-center text-xs font-medium py-2"
+                  style={{ color: 'var(--color-text-tertiary)' }}
                 >
                   {day}
                 </div>

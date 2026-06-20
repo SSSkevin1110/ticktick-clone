@@ -63,14 +63,22 @@ export default function Layout() {
   }, [setSidebarOpen]);
 
   return (
-    <div className={`flex h-screen transition-colors ${
-      resolvedTheme === 'dark' ? 'bg-gray-900' : 'bg-white'
-    }`}>
+    <div
+      className="flex h-screen transition-colors"
+      style={{
+        backgroundColor: resolvedTheme === 'dark' ? 'var(--color-bg-primary)' : 'white'
+      }}
+    >
       {/* 侧边栏 */}
       <Sidebar />
 
       {/* 主内容区 */}
-      <main className="flex-1 overflow-y-auto pb-16 lg:pb-0">
+      <main
+        className="flex-1 overflow-y-auto pb-16 lg:pb-0"
+        style={{
+          backgroundColor: resolvedTheme === 'dark' ? 'var(--color-bg-primary)' : 'white'
+        }}
+      >
         <Outlet />
       </main>
 

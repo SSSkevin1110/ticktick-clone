@@ -33,18 +33,18 @@
 
 [data-theme='dark'] {
   /* 背景色 */
-  --color-bg-primary: #1f2937;
-  --color-bg-secondary: #111827;
-  --color-bg-tertiary: #374151;
+  --color-bg-primary: #1a1a2e;
+  --color-bg-secondary: #16213e;
+  --color-bg-tertiary: #0f3460;
 
   /* 文字色 */
-  --color-text-primary: #f9fafb;
-  --color-text-secondary: #d1d5db;
-  --color-text-tertiary: #9ca3af;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #6b6b6b;
 
   /* 边框和交互 */
-  --color-border: #4b5563;
-  --color-hover: #374151;
+  --color-border: #2d2d44;
+  --color-hover: #2d2d44;
   --color-active: #1e1b4b;
 
   /* 主色 */

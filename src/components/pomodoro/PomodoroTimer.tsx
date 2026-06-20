@@ -172,7 +172,7 @@ export default function PomodoroTimer() {
           /* 初始状态：开始按钮 */
           <button
             onClick={() => startPomodoro()}
-            className={`flex items-center justify-center w-14 h-14 rounded-full ${colorClass} bg-current text-white hover:opacity-90 transition-opacity`}
+            className="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-500 text-white hover:bg-indigo-600 transition-colors"
           >
             <Play size={24} className="ml-1" />
           </button>
