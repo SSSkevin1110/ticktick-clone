@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useUIStore } from '../stores/uiStore';
 import { useTaskStore } from '../stores/taskStore';
+import TagSelector from './TagSelector';
 import type { Priority } from '../types';
 
 /**
@@ -52,7 +53,6 @@ export default function TaskDetail() {
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
 
   // 子任务（本地 mock，后续可接入 Supabase）
   const [subTasks, setSubTasks] = useState<SubTask[]>([]);
@@ -87,19 +87,8 @@ export default function TaskDetail() {
     });
   };
 
-  // 添加标签
-  const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      const newTags = [...tags, tagInput.trim()];
-      setTags(newTags);
-      setTagInput('');
-      if (task) updateTask(task.id, { tags: newTags });
-    }
-  };
-
-  // 删除标签
-  const handleRemoveTag = (tag: string) => {
-    const newTags = tags.filter((t) => t !== tag);
+  // 标签变化回调
+  const handleTagsChange = (newTags: string[]) => {
     setTags(newTags);
     if (task) updateTask(task.id, { tags: newTags });
   };
@@ -263,40 +252,7 @@ export default function TaskDetail() {
               <Tag size={12} className="inline mr-1" />
               标签
             </label>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-600 text-xs rounded-md"
-                >
-                  {tag}
-                  <button
-                    onClick={() => handleRemoveTag(tag)}
-                    className="text-indigo-400 hover:text-indigo-600"
-                  >
-                    <X size={10} />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddTag();
-                }}
-                placeholder="输入标签名..."
-                className="flex-1 text-xs border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-indigo-500"
-              />
-              <button
-                onClick={handleAddTag}
-                className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                添加
-              </button>
-            </div>
+            <TagSelector selectedTags={tags} onTagsChange={handleTagsChange} />
           </div>
 
           {/* 子任务 */}

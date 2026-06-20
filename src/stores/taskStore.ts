@@ -1,10 +1,25 @@
 import { create } from 'zustand';
 import { db } from '../lib/supabase';
-import type { Task } from '../types';
+import type { Task, Priority, SortBy, SortOrder } from '../types';
+
+/** 过滤条件 */
+export interface FilterOptions {
+  listId?: string;
+  priority?: Priority;
+  completed?: boolean;
+}
 
 interface TaskState {
   tasks: Task[];
   isLoading: boolean;
+
+  // 排序状态
+  sortBy: SortBy;
+  sortOrder: SortOrder;
+
+  // 排序操作
+  setSortBy: (sortBy: SortBy) => void;
+  setSortOrder: (order: SortOrder) => void;
 
   // 数据操作
   fetchTasks: (userId: string) => Promise<void>;
@@ -18,7 +33,19 @@ interface TaskState {
   getTasksByDate: (date: string) => Task[];
   getTodayTasks: () => Task[];
   getWeekTasks: () => Task[];
+  getSortedTasks: () => Task[];
+  getFilteredTasks: (filter: FilterOptions) => Task[];
+  searchTasks: (query: string) => Task[];
+  getTasksByTag: (tagName: string) => Task[];
 }
+
+/** 优先级权重映射（用于排序） */
+const priorityWeight: Record<Priority, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+  none: 0,
+};
 
 /**
  * 任务状态管理
@@ -27,6 +54,14 @@ interface TaskState {
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   isLoading: false,
+  sortBy: 'dueDate',
+  sortOrder: 'asc',
+
+  // 设置排序方式
+  setSortBy: (sortBy) => set({ sortBy }),
+
+  // 设置排序方向
+  setSortOrder: (order) => set({ sortOrder: order }),
 
   // 从 Supabase 获取所有任务
   fetchTasks: async (userId: string) => {
@@ -155,5 +190,69 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       if (!t.dueDate) return false;
       return t.dueDate >= startStr && t.dueDate <= endStr;
     });
+  },
+
+  // 根据当前排序设置返回排序后的任务
+  getSortedTasks: () => {
+    const { tasks, sortBy, sortOrder } = get();
+    const sorted = [...tasks];
+
+    sorted.sort((a, b) => {
+      let compareResult = 0;
+
+      switch (sortBy) {
+        case 'priority': {
+          compareResult = priorityWeight[a.priority] - priorityWeight[b.priority];
+          break;
+        }
+        case 'dueDate': {
+          // 无日期的排最后
+          if (!a.dueDate && !b.dueDate) compareResult = 0;
+          else if (!a.dueDate) compareResult = 1;
+          else if (!b.dueDate) compareResult = -1;
+          else compareResult = a.dueDate.localeCompare(b.dueDate);
+          break;
+        }
+        case 'title': {
+          compareResult = a.title.localeCompare(b.title, 'zh-CN');
+          break;
+        }
+        case 'createdAt': {
+          compareResult = a.createdAt.localeCompare(b.createdAt);
+          break;
+        }
+      }
+
+      return sortOrder === 'asc' ? compareResult : -compareResult;
+    });
+
+    return sorted;
+  },
+
+  // 根据过滤条件返回任务
+  getFilteredTasks: (filter: FilterOptions) => {
+    const { tasks } = get();
+    return tasks.filter((task) => {
+      if (filter.listId !== undefined && task.listId !== filter.listId) return false;
+      if (filter.priority !== undefined && task.priority !== filter.priority) return false;
+      if (filter.completed !== undefined && task.completed !== filter.completed) return false;
+      return true;
+    });
+  },
+
+  // 搜索任务（不区分大小写，搜索标题和描述）
+  searchTasks: (query: string) => {
+    if (!query.trim()) return [];
+    const queryLower = query.toLowerCase();
+    return get().tasks.filter((task) => {
+      const titleMatch = task.title.toLowerCase().includes(queryLower);
+      const descMatch = task.description?.toLowerCase().includes(queryLower) || false;
+      return titleMatch || descMatch;
+    });
+  },
+
+  // 按标签过滤任务
+  getTasksByTag: (tagName: string) => {
+    return get().tasks.filter((task) => task.tags.includes(tagName));
   },
 }));

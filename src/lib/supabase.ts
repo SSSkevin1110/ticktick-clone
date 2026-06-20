@@ -52,6 +52,14 @@ interface FolderRow {
   updated_at: string;
 }
 
+interface TagRow {
+  id: string;
+  name: string;
+  color: string;
+  user_id: string;
+  created_at: string;
+}
+
 // ===== 认证相关 =====
 export const auth = {
   // 邮箱注册
@@ -137,6 +145,12 @@ const toFolder = (row: FolderRow) => ({
   sortOrder: row.sort_order,
   createdAt: row.created_at,
   updatedAt: row.updated_at,
+});
+
+const toTag = (row: TagRow) => ({
+  id: row.id,
+  name: row.name,
+  color: row.color,
 });
 
 // 任务操作
@@ -248,6 +262,52 @@ export const db = {
         .single();
       if (error) return { data: null, error };
       return { data: toFolder(data as FolderRow), error: null };
+    },
+  },
+
+  // 标签操作
+  tags: {
+    // 获取所有标签
+    getAll: async (userId: string) => {
+      const { data, error } = await supabase
+        .from('tags')
+        .select('*')
+        .eq('user_id', userId)
+        .order('name', { ascending: true });
+      if (error) return { data: null, error };
+      return { data: data?.map(toTag) ?? [], error: null };
+    },
+
+    // 创建标签
+    create: async (tag: Omit<TagRow, 'id' | 'created_at'>) => {
+      const { data, error } = await supabase
+        .from('tags')
+        .insert(tag)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toTag(data as TagRow), error: null };
+    },
+
+    // 更新标签
+    update: async (id: string, updates: Partial<TagRow>) => {
+      const { data, error } = await supabase
+        .from('tags')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) return { data: null, error };
+      return { data: toTag(data as TagRow), error: null };
+    },
+
+    // 删除标签
+    delete: async (id: string) => {
+      const { error } = await supabase
+        .from('tags')
+        .delete()
+        .eq('id', id);
+      return { error };
     },
   },
 };

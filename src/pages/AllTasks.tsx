@@ -1,20 +1,56 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import TaskList from '../components/TaskList';
 import AddTask from '../components/AddTask';
+import SortMenu from '../components/SortMenu';
+import FilterBar from '../components/FilterBar';
+import type { QuickFilter } from '../components/FilterBar';
 import { useTaskStore } from '../stores/taskStore';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import type { Priority } from '../types';
-import { ListTodo } from 'lucide-react';
+import { ListTodo, ArrowUpDown } from 'lucide-react';
 
 /**
  * 全部任务页面
  * 显示所有任务，区分待完成和已完成
+ * 支持排序和快速过滤
  */
 export default function AllTasks() {
-  const { tasks, isLoading, createTask, toggleTask, deleteTask } = useTaskStore();
+  const { tasks, isLoading, createTask, toggleTask, deleteTask, sortBy, sortOrder, setSortBy, setSortOrder, getSortedTasks, getWeekTasks } = useTaskStore();
   const { user } = useAuthStore();
   const { selectTask } = useUIStore();
+
+  // 排序菜单状态
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  // 快速过滤状态
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>('all');
+
+  // 获取本周到期的任务
+  const weekTasks = useMemo(() => getWeekTasks(), [getWeekTasks]);
+
+  // 根据过滤和排序获取任务
+  const filteredTasks = useMemo(() => {
+    let result = getSortedTasks();
+
+    switch (quickFilter) {
+      case 'highPriority':
+        result = result.filter((t) => t.priority === 'high');
+        break;
+      case 'dueThisWeek':
+        result = result.filter((t) => weekTasks.some((wt) => wt.id === t.id));
+        break;
+      case 'completed':
+        result = result.filter((t) => t.completed);
+        break;
+      // 'all' 不做过滤
+    }
+
+    return result;
+  }, [getSortedTasks, quickFilter, weekTasks]);
+
+  // 按完成状态分组（使用过滤后的任务）
+  const pendingTasks = useMemo(() => filteredTasks.filter(t => !t.completed), [filteredTasks]);
+  const completedTasks = useMemo(() => filteredTasks.filter(t => t.completed), [filteredTasks]);
 
   // 添加任务
   const handleAddTask = async (newTask: { title: string; priority: Priority; dueDate?: string }) => {
@@ -45,9 +81,20 @@ export default function AllTasks() {
     selectTask(id);
   };
 
-  // 按完成状态分组
-  const pendingTasks = useMemo(() => tasks.filter(t => !t.completed), [tasks]);
-  const completedTasks = useMemo(() => tasks.filter(t => t.completed), [tasks]);
+  // 获取排序方式显示文本
+  const getSortLabel = () => {
+    const sortNames: Record<string, string> = {
+      priority: '优先级',
+      dueDate: '截止日期',
+      title: '标题',
+      createdAt: '创建时间',
+    };
+    const orderNames: Record<string, string> = {
+      asc: '升序',
+      desc: '降序',
+    };
+    return `${sortNames[sortBy]} · ${orderNames[sortOrder]}`;
+  };
 
   // 加载骨架屏
   if (isLoading) {
@@ -85,6 +132,38 @@ export default function AllTasks() {
       {/* 添加任务 */}
       <AddTask onAdd={handleAddTask} />
 
+      {/* 排序和过滤工具栏 */}
+      {tasks.length > 0 && (
+        <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
+          <FilterBar currentFilter={quickFilter} onFilterChange={setQuickFilter} />
+
+          {/* 排序按钮 */}
+          <div className="relative ml-auto">
+            <button
+              onClick={() => setSortMenuOpen(!sortMenuOpen)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
+                sortBy !== 'dueDate' || sortOrder !== 'asc'
+                  ? 'bg-indigo-100 text-indigo-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              <span>排序</span>
+            </button>
+            <SortMenu
+              isOpen={sortMenuOpen}
+              onClose={() => setSortMenuOpen(false)}
+              currentSort={sortBy}
+              currentOrder={sortOrder}
+              onSortChange={(newSort, newOrder) => {
+                setSortBy(newSort);
+                setSortOrder(newOrder);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* 空状态 */}
       {tasks.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-gray-400">
@@ -110,6 +189,7 @@ export default function AllTasks() {
                 onToggle={handleToggleTask}
                 onDelete={handleDeleteTask}
                 onClick={handleClickTask}
+                sortLabel={getSortLabel()}
               />
             </div>
           )}

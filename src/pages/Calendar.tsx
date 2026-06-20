@@ -1,248 +1,244 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTaskStore } from '../stores/taskStore';
 import { useUIStore } from '../stores/uiStore';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react';
+import MonthView from '../components/calendar/MonthView';
+import WeekView from '../components/calendar/WeekView';
+import DayView from '../components/calendar/DayView';
+import AgendaView from '../components/calendar/AgendaView';
+import { getWeekDates } from '../lib/dateUtils';
+
+/** 日历视图类型 */
+type CalendarViewType = 'month' | 'week' | 'day' | 'agenda';
+
+/** 视图切换按钮配置 */
+const viewButtons: { key: CalendarViewType; label: string }[] = [
+  { key: 'month', label: '月' },
+  { key: 'week', label: '周' },
+  { key: 'day', label: '日' },
+  { key: 'agenda', label: '议程' },
+];
 
 /**
  * 日历页面
- * 月视图日历，显示任务标记，点击查看当天任务
+ * 支持月/周/日/议程四种视图
+ * 集成多视图切换、月份导航、今天按钮等功能
  */
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [viewType, setViewType] = useState<CalendarViewType>('month');
   const { tasks } = useTaskStore();
   const { selectTask } = useUIStore();
-
-  // 获取当月的天数
-  const getDaysInMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-  };
-
-  // 获取当月第一天是星期几
-  const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-  };
 
   // 切换月份
   const changeMonth = (offset: number) => {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() + offset);
     setCurrentDate(newDate);
-    setSelectedDate(null);
   };
 
-  // 判断是否是今天
-  const isToday = (day: number) => {
-    const today = new Date();
-    return (
-      today.getDate() === day &&
-      today.getMonth() === currentDate.getMonth() &&
-      today.getFullYear() === currentDate.getFullYear()
-    );
+  // 切换周
+  const changeWeek = (offset: number) => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + offset * 7);
+    setCurrentDate(newDate);
   };
 
-  // 获取某天的任务数量
-  const getTaskCountForDay = (day: number) => {
-    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return tasks.filter(t => t.dueDate === dateStr).length;
+  // 切换日
+  const changeDay = (offset: number) => {
+    const newDate = new Date(currentDate);
+    newDate.setDate(newDate.getDate() + offset);
+    setCurrentDate(newDate);
   };
 
-  // 获取某天的任务列表
-  const getTasksForDay = (day: number) => {
-    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return tasks.filter(t => t.dueDate === dateStr);
+  // 回到今天
+  const goToToday = () => {
+    setCurrentDate(new Date());
   };
 
-  // 格式化选中日期
-  const formatSelectedDate = (day: number) => {
-    return `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${day}日`;
+  // 处理日期点击
+  const handleDateClick = (date: string) => {
+    // 如果在周视图或日视图，可以切换到该日期
+    if (viewType === 'week' || viewType === 'day') {
+      setCurrentDate(new Date(date + 'T00:00:00'));
+    }
   };
 
-  const daysInMonth = getDaysInMonth(currentDate);
-  const firstDay = getFirstDayOfMonth(currentDate);
+  // 处理任务点击
+  const handleTaskClick = (taskId: string) => {
+    selectTask(taskId);
+  };
 
-  // 星期标题
-  const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+  // 获取当前视图的标题
+  const getViewTitle = () => {
+    switch (viewType) {
+      case 'month':
+        return `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月`;
+      case 'week': {
+        const weekDates = getWeekDates(currentDate);
+        const start = weekDates[0];
+        const end = weekDates[6];
+        if (start.getMonth() === end.getMonth()) {
+          return `${start.getFullYear()}年${start.getMonth() + 1}月${start.getDate()}日 - ${end.getDate()}日`;
+        }
+        return `${start.getMonth() + 1}月${start.getDate()}日 - ${end.getMonth() + 1}月${end.getDate()}日`;
+      }
+      case 'day':
+        return `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${currentDate.getDate()}日`;
+      case 'agenda':
+        return '议程';
+      default:
+        return '';
+    }
+  };
 
-  // 生成日历网格
-  const calendarDays = [];
-  // 填充月初空白
-  for (let i = 0; i < firstDay; i++) {
-    calendarDays.push(null);
-  }
-  // 填充日期
-  for (let i = 1; i <= daysInMonth; i++) {
-    calendarDays.push(i);
-  }
+  // 导航处理
+  const handlePrev = () => {
+    switch (viewType) {
+      case 'month':
+        changeMonth(-1);
+        break;
+      case 'week':
+        changeWeek(-1);
+        break;
+      case 'day':
+        changeDay(-1);
+        break;
+    }
+  };
 
-  // 选中日期的任务
-  const selectedDayTasks = useMemo(() => {
-    if (!selectedDate) return [];
-    const day = parseInt(selectedDate.split('-')[2], 10);
-    return getTasksForDay(day);
-  }, [selectedDate, tasks]);
+  const handleNext = () => {
+    switch (viewType) {
+      case 'month':
+        changeMonth(1);
+        break;
+      case 'week':
+        changeWeek(1);
+        break;
+      case 'day':
+        changeDay(1);
+        break;
+    }
+  };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       {/* 页面标题 */}
-      <div className="px-6 pt-6 pb-4">
-        <h1 className="text-2xl font-semibold text-gray-900">日历</h1>
-      </div>
-
-      {/* 日历主体 */}
-      <div className="px-6">
-        {/* 月份导航 */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => changeMonth(-1)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <h2 className="text-lg font-semibold text-gray-900">
-            {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
-          </h2>
-          <button
-            onClick={() => changeMonth(1)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
-          </button>
+      <div className="px-6 pt-6 pb-2">
+        <div className="flex items-center gap-2 mb-4">
+          <CalendarIcon className="w-6 h-6 text-indigo-500" />
+          <h1 className="text-2xl font-semibold text-gray-900">日历</h1>
         </div>
 
-        {/* 星期标题行 */}
-        <div className="grid grid-cols-7 mb-2">
-          {weekDays.map((day) => (
-            <div
-              key={day}
-              className="text-center text-xs font-medium text-gray-500 py-2"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* 日期网格 */}
-        <div className="grid grid-cols-7 border-t border-l border-gray-200">
-          {calendarDays.map((day, index) => {
-            const taskCount = day ? getTaskCountForDay(day) : 0;
-            const dayStr = day ? `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` : null;
-            const isSelected = dayStr && selectedDate === dayStr;
-
-            return (
-              <div
-                key={index}
-                className={`min-h-[80px] p-2 border-b border-r border-gray-200 cursor-pointer transition-colors ${
-                  day ? 'bg-white hover:bg-gray-50' : 'bg-gray-50'
-                } ${isSelected ? 'bg-indigo-50' : ''}`}
-                onClick={() => day && setSelectedDate(dayStr === selectedDate ? null : dayStr!)}
+        {/* 视图切换 + 导航栏 */}
+        <div className="flex items-center justify-between">
+          {/* 左侧：视图切换按钮 */}
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            {viewButtons.map((btn) => (
+              <button
+                key={btn.key}
+                onClick={() => setViewType(btn.key)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  viewType === btn.key
+                    ? 'bg-white text-indigo-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
               >
-                {day && (
-                  <>
-                    <span
-                      className={`inline-flex items-center justify-center w-7 h-7 text-sm rounded-full ${
-                        isToday(day)
-                          ? 'bg-indigo-500 text-white font-medium'
-                          : isSelected
-                            ? 'bg-indigo-100 text-indigo-700 font-medium'
-                            : 'text-gray-700'
-                      }`}
-                    >
-                      {day}
-                    </span>
+                {btn.label}
+              </button>
+            ))}
+          </div>
 
-                    {/* 任务标记点 */}
-                    {taskCount > 0 && (
-                      <div className="mt-1 flex items-center justify-center">
-                        <div className="flex gap-0.5">
-                          {taskCount <= 3 ? (
-                            Array.from({ length: taskCount }).map((_, i) => (
-                              <div
-                                key={i}
-                                className="w-1.5 h-1.5 rounded-full bg-indigo-400"
-                              />
-                            ))
-                          ) : (
-                            <span className="text-[10px] text-indigo-600 font-medium">
-                              {taskCount}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          {/* 右侧：导航 + 今天按钮 */}
+          <div className="flex items-center gap-2">
+            {/* 今天按钮 */}
+            <button
+              onClick={goToToday}
+              className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors font-medium"
+            >
+              今天
+            </button>
 
-      {/* 选中日期的任务列表 */}
-      {selectedDate && (
-        <div className="px-6 mt-6">
-          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-700">
-                {formatSelectedDate(parseInt(selectedDate.split('-')[2], 10))}
-                {selectedDayTasks.length > 0 && (
-                  <span className="ml-2 text-xs font-normal text-gray-500">
-                    ({selectedDayTasks.length} 个任务)
-                  </span>
-                )}
-              </h3>
-            </div>
+            {/* 前后导航 */}
+            {viewType !== 'agenda' && (
+              <div className="flex items-center">
+                <button
+                  onClick={handlePrev}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-600" />
+                </button>
+                <span className="text-sm font-semibold text-gray-900 min-w-[140px] text-center">
+                  {getViewTitle()}
+                </span>
+                <button
+                  onClick={handleNext}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            )}
 
-            {selectedDayTasks.length === 0 ? (
-              <div className="px-4 py-8 text-center text-sm text-gray-400">
-                这天没有任务
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-100">
-                {selectedDayTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                    onClick={() => selectTask(task.id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      {/* 复选框 */}
-                      <div
-                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          task.completed
-                            ? 'bg-indigo-500 border-indigo-500'
-                            : 'border-gray-300'
-                        }`}
-                      >
-                        {task.completed && (
-                          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        )}
-                      </div>
-                      {/* 任务信息 */}
-                      <div className="flex-1 min-w-0">
-                        <span className={`text-sm ${task.completed ? 'line-through text-gray-400' : 'text-gray-900'}`}>
-                          {task.title}
-                        </span>
-                        {task.priority !== 'none' && (
-                          <span className={`ml-2 text-xs ${
-                            task.priority === 'high' ? 'text-red-500' :
-                            task.priority === 'medium' ? 'text-yellow-500' :
-                            'text-blue-500'
-                          }`}>
-                            {task.priority === 'high' ? '!!!' : task.priority === 'medium' ? '!!' : '!'}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            {/* 议程视图时显示标题 */}
+            {viewType === 'agenda' && (
+              <span className="text-sm font-semibold text-gray-900">
+                {getViewTitle()}
+              </span>
             )}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* 视图内容 */}
+      <div className="px-6 mt-4">
+        {viewType === 'month' && (
+          <div>
+            {/* 星期标题行 */}
+            <div className="grid grid-cols-7 mb-2">
+              {['一', '二', '三', '四', '五', '六', '日'].map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-xs font-medium text-gray-500 py-2"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+            <MonthView
+              tasks={tasks}
+              currentDate={currentDate}
+              onDateClick={handleDateClick}
+              onTaskClick={handleTaskClick}
+            />
+          </div>
+        )}
+
+        {viewType === 'week' && (
+          <WeekView
+            tasks={tasks}
+            currentDate={currentDate}
+            onDateClick={handleDateClick}
+            onTaskClick={handleTaskClick}
+          />
+        )}
+
+        {viewType === 'day' && (
+          <DayView
+            tasks={tasks}
+            currentDate={currentDate}
+            onDateClick={handleDateClick}
+            onTaskClick={handleTaskClick}
+          />
+        )}
+
+        {viewType === 'agenda' && (
+          <AgendaView
+            tasks={tasks}
+            onTaskClick={handleTaskClick}
+          />
+        )}
+      </div>
     </div>
   );
 }

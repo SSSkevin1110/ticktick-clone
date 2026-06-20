@@ -17,8 +17,11 @@ import {
 } from 'lucide-react';
 import { useUIStore } from '../stores/uiStore';
 import { useListStore } from '../stores/listStore';
+import { useTagStore } from '../stores/tagStore';
 import { useAuthStore } from '../stores/authStore';
 import { showToast } from './Toast';
+import SearchModal from './SearchModal';
+import TagManager from './TagManager';
 
 /**
  * 导航菜单项配置
@@ -32,16 +35,18 @@ const menuItems = [
 /**
  * 侧边栏组件
  * - 从 listStore 获取清单列表
- * - 从 uiStore 获取当前视图状态
- * - 搜索功能（打开 QuickAdd 弹窗）
+ * - 从 tagStore 获取标签列表
+ * - 搜索功能（打开 SearchModal）
  * - 快速添加按钮
  * - 清单右键菜单（重命名/删除/改色）
+ * - 标签区域（显示标签列表，点击过滤）
  */
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { sidebarOpen, toggleSidebar, setQuickAddOpen } = useUIStore();
   const { lists, fetchLists, createList, updateList, deleteList } = useListStore();
+  const { tags, fetchTags } = useTagStore();
   const { user } = useAuthStore();
 
   const [isAddingList, setIsAddingList] = useState(false);
@@ -53,15 +58,19 @@ export default function Sidebar() {
   } | null>(null);
   const [editingListId, setEditingListId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [tagManagerOpen, setTagManagerOpen] = useState(false);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const addListInputRef = useRef<HTMLInputElement>(null);
 
-  // 初始化时获取清单列表
+  // 初始化时获取清单列表和标签
   useEffect(() => {
     if (user?.id) {
       fetchLists(user.id);
+      fetchTags(user.id);
     }
-  }, [user?.id, fetchLists]);
+  }, [user?.id, fetchLists, fetchTags]);
 
   // 聚焦添加清单输入框
   useEffect(() => {
@@ -127,6 +136,15 @@ export default function Sidebar() {
     }
   };
 
+  // 点击标签过滤
+  const handleTagClick = (tagName: string) => {
+    if (selectedTag === tagName) {
+      setSelectedTag(null);
+    } else {
+      setSelectedTag(tagName);
+    }
+  };
+
   return (
     <>
       {/* 侧边栏 */}
@@ -156,11 +174,11 @@ export default function Sidebar() {
           {/* 搜索框 */}
           <div className="p-3">
             <button
-              onClick={() => setQuickAddOpen(true)}
+              onClick={() => setSearchModalOpen(true)}
               className="w-full flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-400 hover:border-gray-300 transition-colors"
             >
               <Search size={14} />
-              <span>搜索或添加任务...</span>
+              <span>搜索任务...</span>
             </button>
           </div>
 
@@ -279,6 +297,44 @@ export default function Sidebar() {
                 )}
               </div>
             </div>
+
+            {/* 标签区域 */}
+            <div className="mt-6">
+              <div className="flex items-center justify-between px-3 mb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  标签
+                </span>
+                <button
+                  onClick={() => setTagManagerOpen(true)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  title="管理标签"
+                >
+                  <Settings size={14} />
+                </button>
+              </div>
+              <div className="space-y-0.5">
+                {tags.map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => handleTagClick(tag.name)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors w-full text-left ${
+                      selectedTag === tag.name
+                        ? 'bg-indigo-50 text-indigo-700 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: tag.color }}
+                    />
+                    <span className="flex-1 truncate">{tag.name}</span>
+                  </button>
+                ))}
+                {tags.length === 0 && (
+                  <div className="px-3 py-2 text-xs text-gray-400">暂无标签</div>
+                )}
+              </div>
+            </div>
           </nav>
 
           {/* 底部设置 */}
@@ -350,6 +406,12 @@ export default function Sidebar() {
           onClick={toggleSidebar}
         />
       )}
+
+      {/* 搜索模态框 */}
+      <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
+
+      {/* 标签管理模态框 */}
+      <TagManager isOpen={tagManagerOpen} onClose={() => setTagManagerOpen(false)} />
     </>
   );
 }

@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import type { Task } from '../types';
+import { ArrowUp } from 'lucide-react';
 
 interface TaskListProps {
   tasks: Task[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onClick?: (id: string) => void;
+  /** 当前排序方式描述，显示在列表顶部 */
+  sortLabel?: string;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete, onClick }: TaskListProps) {
+export default function TaskList({ tasks, onToggle, onDelete, onClick, sortLabel }: TaskListProps) {
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
 
   const getPriorityColor = (priority: string) => {
@@ -45,6 +48,13 @@ export default function TaskList({ tasks, onToggle, onDelete, onClick }: TaskLis
 
   return (
     <div className="divide-y divide-gray-100">
+      {/* 排序信息提示 */}
+      {sortLabel && (
+        <div className="px-4 py-1.5 bg-gray-50 flex items-center gap-1.5 text-xs text-gray-400">
+          <ArrowUp className="w-3 h-3" />
+          <span>当前排序：{sortLabel}</span>
+        </div>
+      )}
       {tasks.map((task) => (
         <div
           key={task.id}
