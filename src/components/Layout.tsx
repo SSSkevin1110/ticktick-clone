@@ -8,12 +8,16 @@ import TaskDetail from './TaskDetail';
 import SearchModal from './SearchModal';
 import ShortcutsHelp from './ShortcutsHelp';
 import InstallPrompt from './InstallPrompt';
+import Tutorial from './Tutorial';
 import { useUIStore } from '../stores/uiStore';
 import { useAuthStore } from '../stores/authStore';
 import { useTaskStore } from '../stores/taskStore';
 import { useListStore } from '../stores/listStore';
 import { useThemeStore } from '../stores/themeStore';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+
+/** 教程显示状态的 localStorage key */
+const TUTORIAL_KEY = 'tickflow_tutorial_shown';
 
 /**
  * 应用主布局
@@ -30,9 +34,27 @@ export default function Layout() {
   // 搜索和快捷键帮助弹窗状态
   const [searchOpen, setSearchOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // 新手教程状态
+  const [tutorialOpen, setTutorialOpen] = useState(false);
 
   const toggleSearch = useCallback(() => setSearchOpen((v) => !v), []);
   const toggleHelp = useCallback(() => setShortcutsOpen((v) => !v), []);
+
+  // 首次访问时显示教程
+  useEffect(() => {
+    const hasShownTutorial = localStorage.getItem(TUTORIAL_KEY);
+    if (!hasShownTutorial) {
+      // 延迟显示，等页面加载完成
+      const timer = setTimeout(() => setTutorialOpen(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  // 关闭教程时标记已显示
+  const handleCloseTutorial = () => {
+    setTutorialOpen(false);
+    localStorage.setItem(TUTORIAL_KEY, 'true');
+  };
 
   // 注册键盘快捷键
   useKeyboardShortcuts({ onToggleSearch: toggleSearch, onToggleHelp: toggleHelp });
@@ -102,6 +124,9 @@ export default function Layout() {
 
       {/* PWA 安装提示 */}
       <InstallPrompt />
+
+      {/* 新手教程 */}
+      <Tutorial isOpen={tutorialOpen} onClose={handleCloseTutorial} />
     </div>
   );
 }

@@ -117,13 +117,13 @@ export default function WeekView({
       <div ref={scrollRef} className="flex-1 overflow-y-auto relative">
         <div className="flex">
           {/* 左侧时间刻度 */}
-          <div className="w-14 flex-shrink-0">
+          <div className="w-16 flex-shrink-0">
             {hours.map((hour) => (
               <div
                 key={hour}
                 className="h-12 border-b border-gray-100 flex items-start justify-end pr-2 pt-0"
               >
-                <span className="text-[10px] text-gray-400 -mt-2">
+                <span className="text-xs text-gray-500 font-medium -mt-2">
                   {hour === 0 ? '' : `${hour}:00`}
                 </span>
               </div>
